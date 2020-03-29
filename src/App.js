@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+import SummaryTable from "./SummaryTable/SummaryTable";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      countriesStats: []
+    };
+  }
+
+  componentDidMount() {
+    fetch("https://corona.lmao.ninja/countries")
+      .then(response => response.json())
+      .then(countries => this.setState({ countriesStats: countries }));
+  }
+
+  render() {
+    const { countriesStats } = this.state;
+    return !countriesStats.length ? (
+      <h1>Loading...</h1>
+    ) : (
+        <SummaryTable countriesData={countriesStats}/>
+    );
+  }
 }
 
 export default App;
