@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
-import SummaryTable from "./SummaryTable/SummaryTable";
+import SummaryTable from "./components/SummaryTable/SummaryTable";
+import HistoryChartPerCountry from "./components/charts/HistoryChartPerCountry";
 
 class App extends Component {
   constructor() {
@@ -21,7 +22,10 @@ class App extends Component {
     return !countriesStats.length ? (
       <h1>Loading...</h1>
     ) : (
-        <SummaryTable countriesData={countriesStats}/>
+      <div>
+        <HistoryChartPerCountry countryName={'greece'}/>
+        <SummaryTable countriesData={countriesStats} />
+      </div>
     );
   }
 }

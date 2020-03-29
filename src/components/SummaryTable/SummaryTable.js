@@ -51,7 +51,7 @@ export default function SummaryTable({ countriesData }) {
         { title: "Deaths/million", field: "deathsPerOneMillion" }
       ]}
       data={countriesData}
-      title="COVID-19 summary data"
+      title="COVID-19 data by country"
     />
   );
 }
