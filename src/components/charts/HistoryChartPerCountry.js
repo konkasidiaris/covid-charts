@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -7,49 +7,84 @@ import {
   YAxis,
   Tooltip
 } from "recharts";
+import { TextField, MenuItem } from "@material-ui/core";
 
-class HistoryChartPerCountry extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      country: props.countryName,
-      countryData: {}
-    };
-  }
+export default function HistoryChartPerCountry({props}) {
+  const [country, setCountry] = useState("greece");
+  const [cases, setCases] = useState([]);
+  const [deaths, setDeaths] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  componentDidMount() {
-    fetch("https://corona.lmao.ninja/v2/historical/greece")
+  useEffect(() => {
+    fetch(`https://corona.lmao.ninja/v2/historical/${country}`)
       .then(response => response.json())
-      .then(data =>
-        this.setState({
-          countryData: data.timeline.cases
-        })
-      )
+      .then(timeline => {
+        setCases(timeline.timeline.cases);
+        setDeaths(timeline.timeline.deaths);
+        setIsLoading(false);
+      })
       .catch(console.log);
-  }
+  }, [country]);
 
-  render() {
-    const { countryData } = this.state;
-    let data =[];
-    for (let [key, value] of Object.entries(countryData)){
-        data.push({date:key , value:value});
-    }
-    return (
+  const countries = props;
+  const handleChange = event => {
+    setCountry(event.target.value);
+  };
+  let data = [];
+  let data1 = [];
+  let data2 = [];
+  for (let [key, value] of Object.entries(cases)) {
+    data1.push({ date: formatDate(key), dailyCases: value });
+  }
+  for (let [key, value] of Object.entries(deaths)) {
+    data2.push({ date: formatDate(key), dailyDeaths: value });
+  }
+  for (let i = 0; i < data1.length; i++) {
+    data.push({ ...data2[i], ...data1[i] });
+  }
+  return (
+    <div>
+      <TextField
+        select
+        id="outlined-basic"
+        label="Select Country"
+        value={country}
+        onChange={handleChange}
+        helperText="select whose country's history stats you want to see"
+        variant="outlined"
+      >
+        {countries.map(option => (
+          <MenuItem key={option} value={option}>
+            {option}
+          </MenuItem>
+        ))}
+      </TextField>
       <LineChart
         width={600}
         height={300}
         data={data}
         margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
       >
-        {/* <Line type="monotone" dataKey="pv" stroke="#8884d8" /> */}
-        <Line type="monotone" dataKey="value" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="dailyDeaths" stroke="#8884d8" />
+        <Line type="monotone" dataKey="dailyCases" stroke="#82ca9d" />
         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-        <XAxis dataKey="date" />
-        <YAxis />
+        <XAxis
+          dataKey="date"
+          label={{ value: "days", offset: 0, position: "insideBottom" }}
+        />
+        <YAxis
+          label={{
+            value: "number of cases/deaths",
+            angle: -90,
+            position: "insideLeft"
+          }}
+        />
         <Tooltip />
       </LineChart>
-    );
+    </div>
+  );
+
+  function formatDate(date) {
+    return new Date(date).toISOString().substring(0, 10);
   }
 }
-
-export default HistoryChartPerCountry;

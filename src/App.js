@@ -19,11 +19,15 @@ class App extends Component {
 
   render() {
     const { countriesStats } = this.state;
+    let countries=[];
+    for (let [key, value] of Object.entries(countriesStats)) {
+      countries.push(value.country);
+    }
     return !countriesStats.length ? (
       <h1>Loading...</h1>
     ) : (
       <div>
-        <HistoryChartPerCountry countryName={'greece'}/>
+        <HistoryChartPerCountry props={countries}/>
         <SummaryTable countriesData={countriesStats} />
       </div>
     );
