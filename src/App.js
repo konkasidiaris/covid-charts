@@ -1,37 +1,36 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
+import Grid from "@material-ui/core/Grid";
 import SummaryTable from "./components/SummaryTable/SummaryTable";
 import HistoryChartPerCountry from "./components/charts/HistoryChartPerCountry";
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      countriesStats: []
-    };
-  }
+export default function App() {
+  const [countriesStats, setCountriesStats] = useState([]);
+  const [countries] = useState([]);
 
-  componentDidMount() {
+  useEffect(() => {
     fetch("https://corona.lmao.ninja/countries")
       .then(response => response.json())
-      .then(countries => this.setState({ countriesStats: countries }));
+      .then(countries => setCountriesStats(countries));
+  });
+
+  // eslint-disable-next-line
+  for (let [key, value] of Object.entries(countriesStats)) {
+    countries.push(value.country);
   }
 
-  render() {
-    const { countriesStats } = this.state;
-    let countries=[];
-    for (let [key, value] of Object.entries(countriesStats)) {
-      countries.push(value.country);
-    }
-    return !countriesStats.length ? (
-      <h1>Loading...</h1>
-    ) : (
-      <div>
-        <HistoryChartPerCountry props={countries}/>
-        <SummaryTable countriesData={countriesStats} />
-      </div>
-    );
-  }
+  return !countriesStats.length ? (
+    <h1>Loading...</h1>
+  ) : (
+    <Grid
+      container
+      direction="row"
+      alignContent="space-between"
+      alignItems="center"
+      justify="space-evenly"
+    >
+      <HistoryChartPerCountry props={countries} />
+      <SummaryTable countriesData={countriesStats} />
+    </Grid>
+  );
 }
-
-export default App;

@@ -9,9 +9,10 @@ import {
 } from "recharts";
 import { TextField, MenuItem } from "@material-ui/core";
 
-export default function HistoryChartPerCountry({props}) {
-  const [country, setCountry] = useState("greece");
+export default function HistoryChartPerCountry({ props }) {
+  const [country, setCountry] = useState("Greece");
   const [cases, setCases] = useState([]);
+  const [recovered, setRecovered] = useState([]);
   const [deaths, setDeaths] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,6 +21,7 @@ export default function HistoryChartPerCountry({props}) {
       .then(response => response.json())
       .then(timeline => {
         setCases(timeline.timeline.cases);
+        setRecovered(timeline.timeline.recovered);
         setDeaths(timeline.timeline.deaths);
         setIsLoading(false);
       })
@@ -33,16 +35,23 @@ export default function HistoryChartPerCountry({props}) {
   let data = [];
   let data1 = [];
   let data2 = [];
+  let data3 = [];
+
   for (let [key, value] of Object.entries(cases)) {
     data1.push({ date: formatDate(key), dailyCases: value });
   }
   for (let [key, value] of Object.entries(deaths)) {
     data2.push({ date: formatDate(key), dailyDeaths: value });
   }
-  for (let i = 0; i < data1.length; i++) {
-    data.push({ ...data2[i], ...data1[i] });
+  for (let [key, value] of Object.entries(recovered)) {
+    data3.push({ date: formatDate(key), dailyRecovered: value });
   }
-  return (
+  for (let i = 0; i < data1.length; i++) {
+    data.push({ ...data2[i], ...data1[i], ...data3[i] });
+  }
+  return isLoading ? (
+    <h1>Loading...</h1>
+  ) : (
     <div>
       <TextField
         select
@@ -67,6 +76,7 @@ export default function HistoryChartPerCountry({props}) {
       >
         <Line type="monotone" dataKey="dailyDeaths" stroke="#8884d8" />
         <Line type="monotone" dataKey="dailyCases" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="dailyRecovered" stroke="#82dadd" />
         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
         <XAxis
           dataKey="date"
@@ -74,7 +84,7 @@ export default function HistoryChartPerCountry({props}) {
         />
         <YAxis
           label={{
-            value: "number of cases/deaths",
+            value: "number of cases/recovered/deaths",
             angle: -90,
             position: "insideLeft"
           }}
