@@ -7,7 +7,7 @@ import {
   YAxis,
   Tooltip
 } from "recharts";
-import { TextField, MenuItem } from "@material-ui/core";
+import { TextField, MenuItem,Grid } from "@material-ui/core";
 
 export default function HistoryChartPerCountry({ props }) {
   const [country, setCountry] = useState("Greece");
@@ -28,7 +28,6 @@ export default function HistoryChartPerCountry({ props }) {
       .catch(console.log);
   }, [country]);
 
-  const countries = props;
   const handleChange = event => {
     setCountry(event.target.value);
   };
@@ -52,7 +51,15 @@ export default function HistoryChartPerCountry({ props }) {
   return isLoading ? (
     <h1>Loading...</h1>
   ) : (
-    <div>
+    <Grid
+      item
+      container
+      direction="column"
+      alignContent="center"
+      alignItems="center"
+      justify="center"
+      xs
+    >
       <TextField
         select
         id="outlined-basic"
@@ -61,8 +68,9 @@ export default function HistoryChartPerCountry({ props }) {
         onChange={handleChange}
         helperText="select whose country's history stats you want to see"
         variant="outlined"
+        noWrap
       >
-        {countries.map(option => (
+        {props.map(option => (
           <MenuItem key={option} value={option}>
             {option}
           </MenuItem>
@@ -72,7 +80,7 @@ export default function HistoryChartPerCountry({ props }) {
         width={600}
         height={300}
         data={data}
-        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+        noWrap
       >
         <Line type="monotone" dataKey="dailyDeaths" stroke="#8884d8" />
         <Line type="monotone" dataKey="dailyCases" stroke="#82ca9d" />
@@ -80,7 +88,7 @@ export default function HistoryChartPerCountry({ props }) {
         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
         <XAxis
           dataKey="date"
-          label={{ value: "days", offset: 0, position: "insideBottom" }}
+          label={{ value: "days", offset: -2, position: "insideBottom" }}
         />
         <YAxis
           label={{
@@ -89,9 +97,9 @@ export default function HistoryChartPerCountry({ props }) {
             position: "insideLeft"
           }}
         />
-        <Tooltip />
+        <Tooltip isAnimationActive={false}/>
       </LineChart>
-    </div>
+    </Grid>
   );
 
   function formatDate(date) {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
 import SummaryTable from "./components/SummaryTable/SummaryTable";
 import HistoryChartPerCountry from "./components/charts/HistoryChartPerCountry";
 
 export default function App() {
   const [countriesStats, setCountriesStats] = useState([]);
-  const [countries] = useState([]);
 
   useEffect(() => {
     fetch("https://corona.lmao.ninja/countries")
@@ -14,23 +14,31 @@ export default function App() {
       .then(countries => setCountriesStats(countries));
   });
 
-  // eslint-disable-next-line
-  for (let [key, value] of Object.entries(countriesStats)) {
-    countries.push(value.country);
-  }
+  const countries = (stats) => {
+    let temp = [];
+    // eslint-disable-next-line
+    for (let [key, value] of Object.entries(stats)) {
+      temp.push(value.country);
+    }
+    return temp.sort();
+  };
 
   return !countriesStats.length ? (
     <h1>Loading...</h1>
   ) : (
     <Grid
       container
-      direction="row"
-      alignContent="space-between"
+      direction="column"
+      alignContent="center"
       alignItems="center"
-      justify="space-evenly"
+      justify="center"
+      xs
+      spacing={4}
+      style={{padding:16}}
     >
-      <HistoryChartPerCountry props={countries} />
-      <SummaryTable countriesData={countriesStats} />
+      <Typography variant="h3" component="h3" noWrap>Covid charts & statistics</Typography>
+      <HistoryChartPerCountry noWrap props={countries(countriesStats)} />
+      <SummaryTable noWrap countriesData={countriesStats} />
     </Grid>
   );
 }
