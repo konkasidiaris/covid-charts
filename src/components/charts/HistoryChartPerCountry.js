@@ -5,50 +5,70 @@ import {
   CartesianGrid,
   XAxis,
   YAxis,
-  Tooltip
+  Tooltip,
+  Legend
 } from "recharts";
-import { TextField, MenuItem,Grid } from "@material-ui/core";
+import { TextField, MenuItem, Grid } from "@material-ui/core";
 
-export default function HistoryChartPerCountry({ props }) {
-  const [country, setCountry] = useState("Greece");
-  const [cases, setCases] = useState([]);
-  const [recovered, setRecovered] = useState([]);
-  const [deaths, setDeaths] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function HistoryChartPerCountry() {
+  const [historicalData, setHistoricalData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [country, setCountry] = useState("");
+  const [countryList, setCountryList] = useState([]);
+  const [data,setData] = useState([]);
+
+  const countries = stats => {
+    let temp = new Set();
+    // eslint-disable-next-line
+    for (let [key, value] of Object.entries(stats)) {
+      temp.add(value.country);
+    }
+    return Array.from(temp).sort();
+  };
+
+  async function fetchData() {
+    const response = await fetch(`https://corona.lmao.ninja/v2/historical`);
+    response.json().then(data => {
+      setHistoricalData(data);
+      setCountryList(countries(data));
+    })
+    .then(setLoading(false));
+  }
 
   useEffect(() => {
-    fetch(`https://corona.lmao.ninja/v2/historical/${country}`)
-      .then(response => response.json())
-      .then(timeline => {
-        setCases(timeline.timeline.cases);
-        setRecovered(timeline.timeline.recovered);
-        setDeaths(timeline.timeline.deaths);
-        setIsLoading(false);
-      })
-      .catch(console.log);
-  }, [country]);
+    fetchData();
+  }, []);
 
   const handleChange = event => {
     setCountry(event.target.value);
+    changePlotValues(
+      historicalData.filter(obj => obj.country === event.target.value)
+    );
   };
-  let data = [];
-  let data1 = [];
-  let data2 = [];
-  let data3 = [];
 
-  for (let [key, value] of Object.entries(cases)) {
-    data1.push({ date: formatDate(key), dailyCases: value });
-  }
-  for (let [key, value] of Object.entries(deaths)) {
-    data2.push({ date: formatDate(key), dailyDeaths: value });
-  }
-  for (let [key, value] of Object.entries(recovered)) {
-    data3.push({ date: formatDate(key), dailyRecovered: value });
-  }
-  for (let i = 0; i < data1.length; i++) {
-    data.push({ ...data2[i], ...data1[i], ...data3[i] });
-  }
-  return isLoading ? (
+  const changePlotValues = obj => {
+    let temp = obj[0].timeline;
+    let data1 = [];
+    let data2 = [];
+    let data3 = [];
+    let data = [];
+
+    for (let [key, value] of Object.entries(temp.cases)) {
+      data1.push({ date: formatDate(key), cases: value });
+    }
+    for (let [key, value] of Object.entries(temp.deaths)) {
+      data2.push({ date: formatDate(key), deaths: value });
+    }
+    for (let [key, value] of Object.entries(temp.recovered)) {
+      data3.push({ date: formatDate(key), recovered: value });
+    }
+    for (let i = 0; i < data1.length; i++) {
+      data.push({ ...data2[i], ...data1[i], ...data3[i] });
+    }
+    setData(data);
+  };
+
+  return loading ? (
     <h1>Loading...</h1>
   ) : (
     <Grid
@@ -68,23 +88,17 @@ export default function HistoryChartPerCountry({ props }) {
         onChange={handleChange}
         helperText="select whose country's history stats you want to see"
         variant="outlined"
-        noWrap
       >
-        {props.map(option => (
+        {countryList.map(option => (
           <MenuItem key={option} value={option}>
             {option}
           </MenuItem>
         ))}
       </TextField>
-      <LineChart
-        width={600}
-        height={300}
-        data={data}
-        noWrap
-      >
-        <Line type="monotone" dataKey="dailyDeaths" stroke="#8884d8" />
-        <Line type="monotone" dataKey="dailyCases" stroke="#82ca9d" />
-        <Line type="monotone" dataKey="dailyRecovered" stroke="#82dadd" />
+      <LineChart width={600} height={300} data={data}>
+        <Line type="monotone" dataKey="deaths" stroke="#8884d8" />
+        <Line type="monotone" dataKey="cases" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="recovered" stroke="#82dadd" />
         <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
         <XAxis
           dataKey="date"
@@ -92,12 +106,13 @@ export default function HistoryChartPerCountry({ props }) {
         />
         <YAxis
           label={{
-            value: "number of cases/recovered/deaths",
+            value: "total cases",
             angle: -90,
             position: "insideLeft"
           }}
         />
-        <Tooltip isAnimationActive={false}/>
+        <Tooltip isAnimationActive={false} />
+        <Legend />
       </LineChart>
     </Grid>
   );

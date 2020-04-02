@@ -1,0 +1,34 @@
+.cell-phone-table {
+    display: none;
+}
+
+.regular-table {}
+
+@media only screen and (max-width: 900px) {
+    .cell-phone-table {
+        display: block;
+        max-width: 450px;
+        height:auto;
+    }
+    .regular-table {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .cell-phone-table {
+        display: block;
+        max-width: 320px;
+        height:auto;
+    }
+    .regular-table {
+        display: none;
+    }
+}
+
+.cell-phone-table-panel{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
