@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { forwardRef } from "react";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import ChevronLeft from "@material-ui/icons/ChevronLeft";
@@ -10,21 +10,41 @@ import LastPage from "@material-ui/icons/LastPage";
 import Search from "@material-ui/icons/Search";
 import MaterialTable from "material-table";
 
-const tableIcons = {
-  Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
-  FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
-  LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
-  NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
-  PreviousPage: forwardRef((props, ref) => (
-    <ChevronLeft {...props} ref={ref} />
-  )),
-  ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
-  Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
-  SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />)
-};
+export default function SummaryTable() {
+  const [loading, setLoading] = useState(true);
 
-export default function SummaryTable({ countriesData }) {
-  return (
+  const [countriesStats, setCountriesStats] = useState([]);
+  const tableIcons = {
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => (
+      <ChevronLeft {...props} ref={ref} />
+    )),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => (
+      <ArrowDownward {...props} ref={ref} />
+    ))
+  };
+
+  async function fetchData() {
+    const response = await fetch("https://corona.lmao.ninja/countries");
+    response
+      .json()
+      .then(countries => setCountriesStats(countries))
+      .then(setLoading(false));
+  }
+
+  useEffect(() => {
+    fetchData();
+    console.log("gia onoma");
+  }, []);
+
+  return loading ? (
+    <h1>loading...</h1>
+  ) : (
     <MaterialTable
       icons={tableIcons}
       columns={[
@@ -50,7 +70,7 @@ export default function SummaryTable({ countriesData }) {
         { title: "Cases/million", field: "casesPerOneMillion" },
         { title: "Deaths/million", field: "deathsPerOneMillion" }
       ]}
-      data={countriesData}
+      data={countriesStats}
       title="COVID-19 data by country"
     />
   );
