@@ -45,7 +45,7 @@ export default function HistoryChartPerCountry() {
   const handleChange = event => {
     setCountry(event.target.value);
     changePlotValues(
-      historicalData.filter(obj => obj.country === event.target.value)
+      historicalData.filter(obj => (obj.country === event.target.value && obj.province === null))
     );
   };
 
