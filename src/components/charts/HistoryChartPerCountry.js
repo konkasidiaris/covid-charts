@@ -9,13 +9,14 @@ import {
   Legend
 } from "recharts";
 import { TextField, MenuItem, Grid } from "@material-ui/core";
+import "./HistoryChartPerCountry.css";
 
 export default function HistoryChartPerCountry() {
   const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [country, setCountry] = useState("");
   const [countryList, setCountryList] = useState([]);
-  const [data,setData] = useState([]);
+  const [data, setData] = useState([]);
 
   const countries = stats => {
     let temp = new Set();
@@ -28,11 +29,13 @@ export default function HistoryChartPerCountry() {
 
   async function fetchData() {
     const response = await fetch(`https://corona.lmao.ninja/v2/historical`);
-    response.json().then(data => {
-      setHistoricalData(data);
-      setCountryList(countries(data));
-    })
-    .then(setLoading(false));
+    response
+      .json()
+      .then(data => {
+        setHistoricalData(data);
+        setCountryList(countries(data));
+      })
+      .then(setLoading(false));
   }
 
   useEffect(() => {
@@ -72,6 +75,7 @@ export default function HistoryChartPerCountry() {
     <h1>Loading...</h1>
   ) : (
     <Grid
+      id="override-class-for-safari"
       item
       container
       direction="column"

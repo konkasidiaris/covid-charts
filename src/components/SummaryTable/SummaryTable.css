@@ -2,8 +2,6 @@
     display: none;
 }
 
-.regular-table {}
-
 @media only screen and (max-width: 900px) {
     .cell-phone-table {
         display: block;
