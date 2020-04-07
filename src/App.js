@@ -13,7 +13,6 @@ export default function App() {
       alignContent="center"
       alignItems="center"
       justify="center"
-      spacing={4}
       style={{ padding: 16 }}
     >
       <Typography variant="h3" component="h3">

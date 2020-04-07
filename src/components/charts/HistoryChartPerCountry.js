@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend
 } from "recharts";
+import UseWindowDimensions from "../../utils/UseWindowDimensions"
 import { TextField, MenuItem, Grid } from "@material-ui/core";
 import "./HistoryChartPerCountry.css";
 
@@ -17,6 +18,7 @@ export default function HistoryChartPerCountry() {
   const [country, setCountry] = useState("");
   const [countryList, setCountryList] = useState([]);
   const [data, setData] = useState([]);
+  const width = UseWindowDimensions();
 
   const countries = stats => {
     let temp = new Set();
@@ -82,7 +84,6 @@ export default function HistoryChartPerCountry() {
       alignContent="center"
       alignItems="center"
       justify="center"
-      xs
     >
       <TextField
         select
@@ -99,7 +100,8 @@ export default function HistoryChartPerCountry() {
           </MenuItem>
         ))}
       </TextField>
-      <LineChart width={600} height={300} data={data}>
+      <LineChart className="linechart" width={width} height={width/2} data={data}>
+
         <Line type="monotone" dataKey="deaths" stroke="#8884d8" />
         <Line type="monotone" dataKey="cases" stroke="#82ca9d" />
         <Line type="monotone" dataKey="recovered" stroke="#82dadd" />
